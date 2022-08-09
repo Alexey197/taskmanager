@@ -1,4 +1,6 @@
-export  const createTaskEditTemplate = () => {
+import {createElement} from "../utils"
+
+const createTaskEditTemplate = () => {
   return (
       `<article class="card card--edit card--yellow card--repeat">
             <form class="card__form" method="get">
@@ -198,4 +200,26 @@ export  const createTaskEditTemplate = () => {
             </form>
           </article>`
   )
+}
+
+export default class TaskEdit {
+  constructor() {
+    this._element = null
+  }
+  
+  getTemplate() {
+    return createTaskEditTemplate()
+  }
+  
+  getElement() {
+    if (!this._element) {
+      this._element = createElement(this.getTemplate())
+    }
+    
+    return this._element
+  }
+  
+  removeElement() {
+    this._element = null
+  }
 }
