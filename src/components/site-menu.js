@@ -1,6 +1,6 @@
 import {createElement} from "../utils"
 
-export const createSiteMenuTemplate = () => {
+const createSiteMenuTemplate = () => {
   return (
       `<section class="control__btn-wrap">
           <input
