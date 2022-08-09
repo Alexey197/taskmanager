@@ -1,9 +1,3 @@
-// import{createLoadMoreButtonTemplate} from './components/load-more-button'
-// import{createFilterTemplate} from './components/filter'
-// import{createBoardTemplate} from './components/board'
-// import{createSiteMenuTemplate} from './components/site-menu'
-// import{createTaskTemplate} from './components/task'
-// import{createTaskEditTemplate} from './components/task-edit'
 import {generateFilters} from "./mock/filter"
 import {generateTasks} from "./mock/task"
 import LoadMoreButtonComponent from "./components/load-more-button"
@@ -18,9 +12,22 @@ const TASK_COUNT = 22
 const SHOWING_TASKS_COUNT_ON_START = 8
 const SHOWING_TASKS_COUNT_BY_BUTTON = 8
 
-// const render = (container, template, place = `beforeend`) => {
-//   container.insertAdjacentHTML(place, template)
-// }
+const renderTask = (task) => {
+  const taskComponent = new TaskComponent(task)
+  const taskEditComponent = new TaskEditComponent(task)
+  
+  const editButton = taskComponent.getElement().querySelector(`.card__btn--edit`)
+  editButton.addEventListener(`click`, () => {
+    taskListElement.replaceChild(taskEditComponent.getElement(), taskComponent.getElement())
+  })
+  
+  const editForm = taskEditComponent.getElement().querySelector(`form`)
+  editForm.addEventListener(`submit`, () => {
+    taskListElement.replaceChild(taskComponent.getElement(), taskEditComponent.getElement())
+  })
+  
+  render(taskListElement, taskComponent.getElement(), RenderPosition.BEFOREEND)
+}
 
 const siteMainElement = document.querySelector(`.main`)
 const siteHeaderElement = siteMainElement.querySelector(`.main__control`)
@@ -35,10 +42,11 @@ render(siteMainElement, boardComponent.getElement(), RenderPosition.BEFOREEND)
 
 const tasks = generateTasks(TASK_COUNT)
 const taskListElement = boardComponent.getElement().querySelector(`.board__tasks`)
-render(taskListElement, new TaskEditComponent(tasks[0]).getElement(), RenderPosition.BEFOREEND)
+// render(taskListElement, new TaskEditComponent(tasks[0]).getElement(), RenderPosition.BEFOREEND)
 
 let showingTasksCount = SHOWING_TASKS_COUNT_ON_START
-tasks.slice(1, showingTasksCount).forEach((task) => render(taskListElement, new TaskComponent(task).getElement(), RenderPosition.BEFOREEND))
+tasks.slice(0, showingTasksCount)
+  .forEach((task) => renderTask(task))
 
 const boardElement = siteMainElement.querySelector(`.board`)
 const loadMoreButtonComponent = new LoadMoreButtonComponent()
@@ -51,7 +59,7 @@ loadMoreButton.addEventListener('click', () => {
   showingTasksCount += SHOWING_TASKS_COUNT_BY_BUTTON
 
   tasks.slice(prevTasksCount, showingTasksCount)
-    .forEach((task) => render(taskListElement, new TaskComponent(task).getElement(), RenderPosition.BEFOREEND))
+    .forEach((task) => renderTask(task))
 
   if (showingTasksCount >= tasks.length) {
     loadMoreButton.remove()
