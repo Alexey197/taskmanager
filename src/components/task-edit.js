@@ -1,6 +1,35 @@
-export  const createTaskEditTemplate = () => {
+import {createElement, formatTime} from "../utils"
+import {MonthNames} from "../const"
+
+
+const createHashtagsMarkup = (hashtags) => {
+  return hashtags
+    .map(hashtag => {
+      return (
+        `<span class="card__hashtag-inner">
+            <span class="card__hashtag-name">
+                #${hashtag}
+            </span>
+         </span>`
+      )
+    })
+}
+
+const createTaskEditTemplate = (task) => {
+  const {description, tags, dueDate, color, repeatingDays} = task
+  
+  const isExpired = dueDate instanceof Date && dueDate < Date.now()
+  const isDateShowing = !!dueDate
+  
+  const date = isDateShowing ? `${dueDate.getDate()} ${MonthNames[dueDate.getMonth()]}` : ``
+  const time = isDateShowing ? formatTime(dueDate) : ``
+  
+  const hashtags = createHashtagsMarkup(Array.from(tags)).join(``)
+  const repeatClass = Object.values(repeatingDays).some(Boolean) ? `card--repeat` : ``
+  const deadlineClass = isExpired ? `card--deadline` : ``
+  
   return (
-      `<article class="card card--edit card--yellow card--repeat">
+      `<article class="card card--edit card--${color} ${repeatClass} ${deadlineClass}">
             <form class="card__form" method="get">
               <div class="card__inner">
                 <div class="card__color-bar">
@@ -15,7 +44,7 @@ export  const createTaskEditTemplate = () => {
                       class="card__text"
                       placeholder="Start typing your text here..."
                       name="text"
-                    >Here is a card with filled data</textarea>
+                    >${description}</textarea>
                   </label>
                 </div>
 
@@ -33,7 +62,7 @@ export  const createTaskEditTemplate = () => {
                             type="text"
                             placeholder=""
                             name="date"
-                            value="23 September 16:15"
+                            value="${date} ${time}"
                           />
                         </label>
                       </fieldset>
@@ -189,6 +218,12 @@ export  const createTaskEditTemplate = () => {
                     </div>
                   </div>
                 </div>
+                <div class="card__hashtag">
+                      <div class="card__hashtag-list">
+                        ${hashtags}
+                      </div>
+                    </div>
+                  </div>
 
                 <div class="card__status-btns">
                   <button class="card__save" type="submit">save</button>
@@ -198,4 +233,27 @@ export  const createTaskEditTemplate = () => {
             </form>
           </article>`
   )
+}
+
+export default class TaskEdit {
+  constructor(task) {
+    this._task = task
+    this._element = null
+  }
+  
+  getTemplate() {
+    return createTaskEditTemplate(this._task)
+  }
+  
+  getElement() {
+    if (!this._element) {
+      this._element = createElement(this.getTemplate())
+    }
+    
+    return this._element
+  }
+  
+  removeElement() {
+    this._element = null
+  }
 }
