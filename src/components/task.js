@@ -61,7 +61,7 @@ const createHashtagsMarkup = (hashtags) => {
     })
 }
 
-export const createTaskTemplate = (task) => {
+const createTaskTemplate = (task) => {
   const {description, tags, dueDate, color, repeatingDays} = task
   
   const isExpired = dueDate instanceof Date && dueDate < Date.now()
