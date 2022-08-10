@@ -13,17 +13,36 @@ const SHOWING_TASKS_COUNT_ON_START = 8
 const SHOWING_TASKS_COUNT_BY_BUTTON = 8
 
 const renderTask = (task) => {
-  const taskComponent = new TaskComponent(task)
-  const taskEditComponent = new TaskEditComponent(task)
+  const onEscKeyDown = (evt) => {
+    const isEscKey = evt.key === `Escape` || evt.key === `Esc`
+    
+    if (isEscKey) {
+      replaceEditToTask()
+      removeEventListener(`keydown`, onEscKeyDown)
+    }
+  }
   
-  const editButton = taskComponent.getElement().querySelector(`.card__btn--edit`)
-  editButton.addEventListener(`click`, () => {
+  const replaceEditToTask = () => {
+    taskListElement.replaceChild(taskComponent.getElement(), taskEditComponent.getElement())
+    console.log(taskEditComponent.getElement())
+  }
+  
+  const replaceTaskToEdit = () => {
     taskListElement.replaceChild(taskEditComponent.getElement(), taskComponent.getElement())
+  }
+  
+  const taskComponent = new TaskComponent(task)
+  const editButton = taskComponent.getElement().querySelector(`.card__btn--edit`)
+  
+  editButton.addEventListener(`click`, () => {
+    replaceTaskToEdit()
+    document.addEventListener(`keydown`, onEscKeyDown)
   })
   
+  const taskEditComponent = new TaskEditComponent(task)
   const editForm = taskEditComponent.getElement().querySelector(`form`)
   editForm.addEventListener(`submit`, () => {
-    taskListElement.replaceChild(taskComponent.getElement(), taskEditComponent.getElement())
+    replaceEditToTask()
   })
   
   render(taskListElement, taskComponent.getElement(), RenderPosition.BEFOREEND)
@@ -42,7 +61,6 @@ render(siteMainElement, boardComponent.getElement(), RenderPosition.BEFOREEND)
 
 const tasks = generateTasks(TASK_COUNT)
 const taskListElement = boardComponent.getElement().querySelector(`.board__tasks`)
-// render(taskListElement, new TaskEditComponent(tasks[0]).getElement(), RenderPosition.BEFOREEND)
 
 let showingTasksCount = SHOWING_TASKS_COUNT_ON_START
 tasks.slice(0, showingTasksCount)
