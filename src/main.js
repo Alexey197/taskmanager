@@ -42,9 +42,7 @@ const renderTask = (taskListElement, task) => {
   const taskEditComponent = new TaskEditComponent(task)
   const editForm = taskEditComponent.getElement().querySelector(`form`)
   
-  editForm.addEventListener(`submit`, () => {
-    replaceEditToTask()
-  })
+  editForm.addEventListener(`submit`, replaceEditToTask)
   
   render(taskListElement, taskComponent.getElement(), RenderPosition.BEFOREEND)
 }
