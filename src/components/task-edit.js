@@ -1,5 +1,7 @@
-import {createElement, formatTime} from "../utils"
+
 import {MonthNames} from "../const"
+import AbstractComponent from "./abstract-component"
+import {formatTime} from "../utils"
 
 
 const createHashtagsMarkup = (hashtags) => {
@@ -233,25 +235,25 @@ const createTaskEditTemplate = (task) => {
   )
 }
 
-export default class TaskEdit {
+export default class TaskEdit extends AbstractComponent{
   constructor(task) {
+    super()
     this._task = task
-    this._element = null
+    this._formSubmitHandler = this._formSubmitHandler.bind(this)
   }
   
   getTemplate() {
     return createTaskEditTemplate(this._task)
   }
   
-  getElement() {
-    if (!this._element) {
-      this._element = createElement(this.getTemplate())
-    }
-    
-    return this._element
+  _formSubmitHandler(evt) {
+    evt.preventDefault()
+    this._callback.formSubmit()
   }
   
-  removeElement() {
-    this._element = null
+  setFormSubmitHandler(callback) {
+    this._callback.formSubmit = callback
+    this.getElement().querySelector(`form`)
+      .addEventListener(`submit`, this._formSubmitHandler)
   }
 }
