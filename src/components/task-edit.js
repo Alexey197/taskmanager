@@ -238,16 +238,22 @@ const createTaskEditTemplate = (task) => {
 export default class TaskEdit extends AbstractComponent{
   constructor(task) {
     super()
-    
     this._task = task
+    this._formSubmitHandler = this._formSubmitHandler.bind(this)
   }
   
   getTemplate() {
     return createTaskEditTemplate(this._task)
   }
   
-  setSubmitHandler(handler) {
+  _formSubmitHandler(evt) {
+    evt.preventDefault()
+    this._callback.formSubmit()
+  }
+  
+  setFormSubmitHandler(callback) {
+    this._callback.formSubmit = callback
     this.getElement().querySelector(`form`)
-      .addEventListener(`submit`, handler)
+      .addEventListener(`submit`, this._formSubmitHandler)
   }
 }

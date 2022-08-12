@@ -131,14 +131,21 @@ export default class Task extends AbstractComponent {
   constructor(task) {
     super()
     this._task = task
+    this._editClickHandler = this._editClickHandler.bind(this)
   }
   
   getTemplate() {
     return createTaskTemplate(this._task)
   }
   
-  setButtonClickHandler(handler) {
+  _editClickHandler(evt) {
+    evt.preventDefault()
+    this._callback.editClick()
+  }
+  
+  setEditClickHandler(callback) {
+    this._callback.editClick = callback
     this.getElement().querySelector(`.card__btn--edit`)
-      .addEventListener(`click`, handler)
+      .addEventListener(`click`, this._editClickHandler)
   }
 }
