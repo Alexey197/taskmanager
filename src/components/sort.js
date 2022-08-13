@@ -21,30 +21,24 @@ export default class Sort extends AbstractComponent{
   constructor() {
     super()
     
-    this._currentSortType = SortType.DEFAULT
+    this._sortTypeChangeHandler = this._sortTypeChangeHandler.bind(this)
   }
   
   getTemplate() {
     return createSortTemplate()
   }
   
-  setSortTypeChangeHandler(handler) {
-    this.getElement().addEventListener(`click`, (evt) => {
-      evt.preventDefault()
-      
-      if (evt.target.tagName !== `A`) {
-        return
-      }
-      
-      const sortType = evt.target.dataset.sortType
-      
-      if (this._currentSortType === sortType) {
-        return
-      }
-      
-      this._currentSortType = sortType
-      
-      handler(this._currentSortType)
-    })
+  _sortTypeChangeHandler(evt) {
+    if (evt.target.tagName !== `A`) {
+      return
+    }
+    
+    evt.preventDefault()
+    this._callback.sortTypeChange(evt.target.dataset.sortType)
+  }
+  
+  setSortTypeChangeHandler(callback) {
+    this._callback.sortTypeChange = callback
+    this.getElement().addEventListener(`click`, this._sortTypeChangeHandler)
   }
 }

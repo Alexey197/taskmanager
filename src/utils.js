@@ -42,6 +42,15 @@ export const replace = (newChild, oldChild) => {
   parent.replaceChild(newChild, oldChild)
 }
 
+export const remove = (component) => {
+  if (!(component instanceof AbstractComponent)) {
+    throw new Error(`Can remove only components`)
+  }
+  
+  component.getElement().remove()
+  component.removeElement()
+}
+
 const castTimeFormat = (value) => {
   return value < 10 ? `0${value}` : String(value)
 }
