@@ -6,10 +6,8 @@ import TaskComponent from "../components/task"
 import TaskEditComponent from "../components/task-edit"
 import {remove, render, RenderPosition, replace} from "../utils"
 import BoardComponent from "../components/board"
-// import {generateTasks} from "../mock/task"
 
 const TASK_COUNT_PER_STEP = 8
-// const SHOWING_TASKS_COUNT_BY_BUTTON = 8
 
 
 export default class BoardController {
@@ -30,6 +28,9 @@ export default class BoardController {
   
   init(tasks) {
     this._tasks = tasks.slice()
+    // 1. В отличии от сортировки по любому параметру,
+    // исходный порядок можно сохранить только одним способом -
+    // сохранив исходный массив:
     this._sourcedTasks = this._tasks.slice()
     render(this._container, this._boardComponent, RenderPosition.BEFOREEND)
     render(this._boardComponent, this._tasksComponent, RenderPosition.BEFOREEND)
@@ -38,6 +39,9 @@ export default class BoardController {
   }
   
   _sortTasks(sortType) {
+    // 2. Этот исходный массив задач необходим,
+    // потому что для сортировки мы будем мутировать
+    // массив в свойстве _boardTasks
     switch (sortType) {
       case SortType.DATE_UP:
         this._tasks.sort((a, b) => a.dueDate - b.dueDate)
@@ -46,6 +50,8 @@ export default class BoardController {
         this._tasks.sort((a, b) => b.dueDate - a.dueDate)
         break
       default:
+        // 3. А когда пользователь захочет "вернуть всё, как было",
+        // мы просто запишем в _boardTasks исходный массив
         this._sourcedTasks.slice()
     }
     
