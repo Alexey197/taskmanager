@@ -1,54 +1,44 @@
-import {Colors} from "../const"
+import {COLORS, DESCRIPTION, DEFAULT_REPEATING, Tags} from "../const.js";
+import {getBooleanValue, getRandomElement, getRandomInteger} from "../utils/common";
 
-const DescriptionItem = [
-  `Изучить теорию`,
-  `Сделать домашку`,
-  `Пройти интенсив на соточку`
-]
-
-const DefaultRepeatingDays = {
-  'mo': false,
-  'tu': false,
-  'we': false,
-  'th': false,
-  'fr': false,
-  'sa': false,
-  'su': false,
-}
-
-const Tags = [
-  `homework`,
-  `theory`,
-  `practice`,
-  `intensive`,
-  `keks`,
-]
-
-const getRandomArrayItem = (array) => {
-  const randomIndex = getRandomIntegerNumber(0, array.length)
+const generateDate = () => {
+  // Когда в руках молоток, любая проблема - гвоздь.
+  // Вот и для генерации случайного булевого значения
+  // можно использовать "функцию из интернета".
+  // Ноль - ложь, один - истина. Для верности приводим
+  // к булевому типу с помощью Boolean
+  const isDate = getBooleanValue();
   
-  return array[randomIndex]
-}
-
-const getRandomIntegerNumber = (min, max) => {
-  return min + Math.floor(max * Math.random())
-}
-
-const getRandomDate = () => {
-  const targetDate = new Date()
-  const sign = Math.random() > 0.5 ? 1 : -1
-  const diffValue = sign * getRandomIntegerNumber(0, 7)
+  if (!isDate) {
+    return null;
+  }
   
-  targetDate.setDate(targetDate.getDate() + diffValue)
+  const maxDaysGap = 7;
+  const daysGap = getRandomInteger(-maxDaysGap, maxDaysGap);
+  const currentDate = new Date();
   
-  return targetDate
-}
+  // По заданию дедлайн у задачи устанавливается без учёта времеми,
+  // но объект даты без времени завести нельзя,
+  // поэтому будем считать срок у всех задач -
+  // это 23:59:59 установленной даты
+  currentDate.setHours(23, 59, 59, 999);
+  
+  currentDate.setDate(currentDate.getDate() + daysGap);
+  
+  return new Date(currentDate);
+};
 
-const generateRepeatingDays = () => {
-  return Object.assign({}, DefaultRepeatingDays, {
-    'mo': Math.random() > 0.5
-  })
-}
+const generateRepeating = () => {
+  return {
+    mo: false,
+    tu: false,
+    we: Boolean(getRandomInteger(0, 1)),
+    th: false,
+    fr: Boolean(getRandomInteger(0, 1)),
+    sa: false,
+    su: false
+  };
+};
 
 const generateTags = (tags) => {
   return tags
@@ -56,24 +46,23 @@ const generateTags = (tags) => {
     .slice(0, 3)
 }
 
-const generateTask = () => {
-  const dueDate = Math.random() > 0.5 ? null : getRandomDate()
+export const generateTask = () => {
+  const dueDate = generateDate();
+  const repeating = dueDate === null ? generateRepeating() : DEFAULT_REPEATING;
   
   return {
-    description: getRandomArrayItem(DescriptionItem),
+    description: getRandomElement(DESCRIPTION),
     dueDate,
-    repeatingDays: dueDate ? DefaultRepeatingDays : generateRepeatingDays(),
+    repeating,
     tags: new Set(generateTags(Tags)),
-    color: getRandomArrayItem(Colors),
-    isFavorite: Math.random() > 0.5,
-    isArchive: Math.random() > 0.5
-  }
-}
+    color: getRandomElement(COLORS),
+    isArchive: getBooleanValue(),
+    isFavorite: getBooleanValue()
+  };
+};
 
-const generateTasks = (count) => {
+export const generateTasks = (count) => {
   return new Array(count)
     .fill(``)
     .map(generateTask)
 }
-
-export {generateTask, generateTasks}
