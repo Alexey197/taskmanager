@@ -1,8 +1,15 @@
-import AbstractComponent from "./components/abstract-component"
+import AbstractComponent from "../components/abstract-component"
 
 export const RenderPosition = {
   AFTERBEGIN: `afterbegin`,
   BEFOREEND: `beforeend`
+}
+
+export const createElement = (template) => {
+  const newElement = document.createElement(`div`)
+  newElement.innerHTML = template
+  
+  return newElement.firstChild
 }
 
 export const render = (container, child, place) => {
@@ -64,9 +71,3 @@ export const formatTime = (date) => {
   return `${hours}:${minutes} ${interval}`
 }
 
-export const createElement = (template) => {
-  const newElement = document.createElement(`div`)
-  newElement.innerHTML = template
-  
-  return newElement.firstChild
-}

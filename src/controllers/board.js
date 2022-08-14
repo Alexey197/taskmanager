@@ -4,7 +4,7 @@ import TasksComponent from "../components/tasks"
 import LoadMoreButtonComponent from "../components/load-more-button"
 import TaskComponent from "../components/task"
 import TaskEditComponent from "../components/task-edit"
-import {remove, render, RenderPosition, replace} from "../utils"
+import {render, remove, RenderPosition, replace} from "../utils/render"
 import BoardComponent from "../components/board"
 
 const TASK_COUNT_PER_STEP = 8
