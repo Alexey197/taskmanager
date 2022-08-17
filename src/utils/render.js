@@ -1,4 +1,4 @@
-import AbstractComponent from "../components/abstract-component"
+import AbstractComponent from "../view/abstract-component"
 
 export const RenderPosition = {
   AFTERBEGIN: `afterbegin`,
@@ -33,21 +33,22 @@ export const render = (container, child, place) => {
 
 export const replace = (newChild, oldChild) => {
   if (oldChild instanceof AbstractComponent) {
-    oldChild = oldChild.getElement()
+    oldChild = oldChild.getElement();
   }
   
   if (newChild instanceof AbstractComponent) {
-    newChild = newChild.getElement()
+    newChild = newChild.getElement();
   }
   
-  const parent = oldChild.parentElement
+  const parent = oldChild.parentElement;
   
   if (parent === null || oldChild === null || newChild === null) {
-    throw new Error(`Cant replace unexisting element`)
+    throw new Error(`Can't replace unexisting elements`);
   }
   
-  parent.replaceChild(newChild, oldChild)
-}
+  parent.replaceChild(newChild, oldChild);
+};
+
 
 export const remove = (component) => {
   if (!(component instanceof AbstractComponent)) {
