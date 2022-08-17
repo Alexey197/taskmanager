@@ -254,16 +254,16 @@ export default class TaskEdit extends Smart {
       .addEventListener(`click`, this._repeatingToggleHandler)
     this.getElement()
       .querySelector(`.card__text`)
-      .addEventListener(`click`, this._descriptionInputHandler)
+      .addEventListener(`input`, this._descriptionInputHandler)
     if (this._data.isRepeating) {
       this.getElement()
         .querySelector(`.card__repeat-days-inner`)
-        .addEventListener(`click`, this._repeatingChangeHandler)
+        .addEventListener(`change`, this._repeatingChangeHandler)
     }
   
     this.getElement()
       .querySelector(`.card__colors-wrap`)
-      .addEventListener(`click`, this._colorChangeHandler)
+      .addEventListener(`change`, this._colorChangeHandler)
   }
   
   reset(task) {
@@ -309,7 +309,7 @@ export default class TaskEdit extends Smart {
         fr: false,
         sa: false,
         su: false
-      };
+      }
     }
     
     delete data.isDueDate
