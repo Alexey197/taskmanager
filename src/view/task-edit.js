@@ -2,6 +2,7 @@ import {COLORS} from "../const.js"
 import Smart from "./smart"
 import {humanizeTaskDueDate, isTaskRepeating} from "../utils/task"
 import flatpickr from "flatpickr"
+
 import "../../node_modules/flatpickr/dist/flatpickr.min.css"
 
 const BLANK_TASK = {
@@ -143,8 +144,12 @@ export default class TaskEdit extends Smart {
     this._datepicker = null
     
     this._formSubmitHandler = this._formSubmitHandler.bind(this)
+    this._descriptionInputHandler = this._descriptionInputHandler.bind(this)
     this._dueDateToggleHandler = this._dueDateToggleHandler.bind(this)
+    this._dueDateChangeHandler = this._dueDateChangeHandler.bind(this)
     this._repeatingToggleHandler = this._repeatingToggleHandler.bind(this)
+    this._repeatingChangeHandler = this._repeatingChangeHandler.bind(this)
+    this._colorChangeHandler = this._colorChangeHandler.bind(this)
     
     this._setInnerHandlers()
     this._setDatepicker()
@@ -155,10 +160,22 @@ export default class TaskEdit extends Smart {
   }
   
   _dueDateToggleHandler(evt) {
-    evt.preventDefault();
+    evt.preventDefault()
     this.updateData({
-      isDueDate: !this._data.isDueDate
+      isDueDate: !this._data.isDueDate,
+      // Логика следующая: если выбор даты нужно показать,
+      // то есть когда "!this._data.isDueDate === true",
+      // тогда isRepeating должно быть строго false,
+      // что достигается логическим оператором &&
+      isTaskRepeating: !this._data.isDueDate && false
     });
+  }
+  
+  _descriptionInputHandler(evt) {
+    evt.preventDefault()
+    this.updateData({
+      description: evt.target.value
+    }, true)
   }
   
   _setDatepicker() {
@@ -196,10 +213,30 @@ export default class TaskEdit extends Smart {
   }
   
   _repeatingToggleHandler(evt) {
-    evt.preventDefault();
+    evt.preventDefault()
     this.updateData({
-      isRepeating: !this._data.isRepeating
+      isRepeating: !this._data.isRepeating,
+      // Аналогично, но наоборот, для повторения
+      isDueDate: !this._data.isRepeating && false
     });
+  }
+  
+  _repeatingChangeHandler(evt) {
+    evt.preventDefault()
+    this.updateData({
+      repeating: Object.assign(
+        {},
+        this._data.repeating,
+        {[evt.target.value]: evt.target.checked}
+      )
+    })
+  }
+  
+  _colorChangeHandler(evt) {
+    evt.preventDefault()
+    this.updateData({
+      color: evt.target.value
+    })
   }
   
   restoreHandlers() {
@@ -215,6 +252,18 @@ export default class TaskEdit extends Smart {
     this.getElement()
       .querySelector(`.card__repeat-toggle`)
       .addEventListener(`click`, this._repeatingToggleHandler)
+    this.getElement()
+      .querySelector(`.card__text`)
+      .addEventListener(`click`, this._descriptionInputHandler)
+    if (this._data.isRepeating) {
+      this.getElement()
+        .querySelector(`.card__repeat-days-inner`)
+        .addEventListener(`click`, this._repeatingChangeHandler)
+    }
+  
+    this.getElement()
+      .querySelector(`.card__colors-wrap`)
+      .addEventListener(`click`, this._colorChangeHandler)
   }
   
   reset(task) {
