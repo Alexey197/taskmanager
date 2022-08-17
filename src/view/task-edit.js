@@ -1,6 +1,8 @@
-import {COLORS} from "../const.js";
+import {COLORS} from "../const.js"
 import Smart from "./smart"
-import {humanizeTaskDueDate, isTaskRepeating} from "../utils/task";
+import {humanizeTaskDueDate, isTaskRepeating} from "../utils/task"
+import flatpickr from "flatpickr"
+import "../../node_modules/flatpickr/dist/flatpickr.min.css"
 
 const BLANK_TASK = {
   color: COLORS[0],
@@ -17,7 +19,7 @@ const BLANK_TASK = {
   },
   isArchive: false,
   isFavorite: false
-};
+}
 
 const createTaskEditDateTemplate = (dueDate, isDueDate) => {
   return `<button class="card__date-deadline-toggle" type="button">
@@ -77,19 +79,19 @@ const createTaskEditColorsTemplate = (currentColor) => {
 };
 
 const createTaskEditTemplate = (data) => {
-  const {color, description, dueDate, repeating, isDueDate, isRepeating} = data;
+  const {color, description, dueDate, repeating, isDueDate, isRepeating} = data
   
-  const deadlineClassName = isDueDate ? `card--deadline` : ``;
+  const dateTemplate = createTaskEditDateTemplate(dueDate, isDueDate)
   
-  const dateTemplate = createTaskEditDateTemplate(dueDate, isDueDate);
+  const repeatingClassName = isRepeating ? `card--repeat` : ``
   
-  const repeatingClassName = isRepeating ? `card--repeat` : ``;
+  const repeatingTemplate = createTaskEditRepeatingTemplate(repeating, isRepeating)
   
-  const repeatingTemplate = createTaskEditRepeatingTemplate(repeating, isRepeating);
+  const colorsTemplate = createTaskEditColorsTemplate(color)
   
-  const colorsTemplate = createTaskEditColorsTemplate(color);
+  const isSubmitDisabled = (isDueDate && dueDate === null) || (isRepeating && !isTaskRepeating(repeating))
   
-  return `<article class="card card--edit card--${color} ${deadlineClassName} ${repeatingClassName}">
+  return `<article class="card card--edit card--${color} ${repeatingClassName}">
     <form class="card__form" method="get">
       <div class="card__inner">
         <div class="card__color-bar">
@@ -126,7 +128,7 @@ const createTaskEditTemplate = (data) => {
         </div>
         
         <div class="card__status-btns">
-          <button class="card__save" type="submit">save</button>
+          <button class="card__save" type="submit" ${isSubmitDisabled ? `disabled` : ``}>save</button>
           <button class="card__delete" type="button">delete</button>
         </div>
       </div>
@@ -137,16 +139,19 @@ const createTaskEditTemplate = (data) => {
 export default class TaskEdit extends Smart {
   constructor(task = BLANK_TASK) {
     super();
-    this._data = TaskEdit.parseTaskToData(task);
-    this._formSubmitHandler = this._formSubmitHandler.bind(this);
-    this._dueDateToggleHandler = this._dueDateToggleHandler.bind(this);
-    this._repeatingToggleHandler = this._repeatingToggleHandler.bind(this);
+    this._data = TaskEdit.parseTaskToData(task)
+    this._datepicker = null
     
-    this._setInnerHandlers();
+    this._formSubmitHandler = this._formSubmitHandler.bind(this)
+    this._dueDateToggleHandler = this._dueDateToggleHandler.bind(this)
+    this._repeatingToggleHandler = this._repeatingToggleHandler.bind(this)
+    
+    this._setInnerHandlers()
+    this._setDatepicker()
   }
   
   getTemplate() {
-    return createTaskEditTemplate(this._data);
+    return createTaskEditTemplate(this._data)
   }
   
   _dueDateToggleHandler(evt) {
@@ -154,6 +159,40 @@ export default class TaskEdit extends Smart {
     this.updateData({
       isDueDate: !this._data.isDueDate
     });
+  }
+  
+  _setDatepicker() {
+    if (this._datepicker) {
+      // В случае обновления компонента удаляем вспомогательные DOM-элементы,
+      // которые создает flatpickr при инициализации
+      this._datepicker.destroy()
+      this._datepicker = null
+    }
+    
+    if (this._data.isDueDate) {
+      // flatpickr есть смысл инициализировать только в случае,
+      // если поле выбора даты доступно для заполнения
+      this._datepicker = flatpickr(
+        this.getElement().querySelector(`.card__date`),
+        {
+          dateFormat: `j F`,
+          defaultDate: this._data.dueDate,
+          onChange: this._dueDateChangeHandler // На событие flatpickr передаём наш колбэк
+        }
+      )
+    }
+  }
+  
+  _dueDateChangeHandler([userDate]) {
+    // По заданию дедлайн у задачи устанавливается без учёта времеми,
+    // но объект даты без времени завести нельзя,
+    // поэтому будем считать срок у всех задач -
+    // это 23:59:59 установленной даты
+    userDate.setHours(23, 59, 59, 999)
+    
+    this.updateData({
+      dueDate: userDate
+    })
   }
   
   _repeatingToggleHandler(evt) {
@@ -164,17 +203,18 @@ export default class TaskEdit extends Smart {
   }
   
   restoreHandlers() {
-    this._setInnerHandlers();
-    this.setFormSubmitHandler(this._callback.formSubmit);
+    this._setInnerHandlers()
+    this._setDatepicker()
+    this.setFormSubmitHandler(this._callback.formSubmit)
   }
   
   _setInnerHandlers() {
     this.getElement()
       .querySelector(`.card__date-deadline-toggle`)
-      .addEventListener(`click`, this._dueDateToggleHandler);
+      .addEventListener(`click`, this._dueDateToggleHandler)
     this.getElement()
       .querySelector(`.card__repeat-toggle`)
-      .addEventListener(`click`, this._repeatingToggleHandler);
+      .addEventListener(`click`, this._repeatingToggleHandler)
   }
   
   reset(task) {
@@ -185,12 +225,12 @@ export default class TaskEdit extends Smart {
   
   _formSubmitHandler(evt) {
     evt.preventDefault();
-    this._callback.formSubmit(TaskEdit.parseDataToTask(this._data));
+    this._callback.formSubmit(TaskEdit.parseDataToTask(this._data))
   }
   
   setFormSubmitHandler(callback) {
-    this._callback.formSubmit = callback;
-    this.getElement().querySelector(`form`).addEventListener(`submit`, this._formSubmitHandler);
+    this._callback.formSubmit = callback
+    this.getElement().querySelector(`form`).addEventListener(`submit`, this._formSubmitHandler)
   }
   
   static parseTaskToData(task) {
@@ -205,10 +245,10 @@ export default class TaskEdit extends Smart {
   }
   
   static parseDataToTask(data) {
-    data = Object.assign({}, data);
+    data = Object.assign({}, data)
     
     if (!data.isDueDate) {
-      data.dueDate = null;
+      data.dueDate = null
     }
     
     if (!data.isRepeating) {
@@ -223,9 +263,9 @@ export default class TaskEdit extends Smart {
       };
     }
     
-    delete data.isDueDate;
-    delete data.isRepeating;
+    delete data.isDueDate
+    delete data.isRepeating
     
-    return data;
+    return data
   }
 }
